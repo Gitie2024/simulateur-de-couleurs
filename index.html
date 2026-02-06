@@ -1,0 +1,646 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Visualiseur de couleurs</title><style>/* --- Réglages Généraux --- */
+:root {
+    --primary-bg: #f0f8ff; /* Bleu très clair (AliceBlue) */
+    --container-bg: #ffffff;
+    --text-color: #1c2331; /* Noir doux */
+    --brand-blue: #0d6efd; /* Bleu standard pour les accents */
+    --dark-blue-btn: #00008B; /* Bleu foncé pour les boutons */
+    --white-text: #ffffff;
+    --secondary-btn-bg: #6c757d; /* Gris pour les actions secondaires */
+    --secondary-btn-hover-bg: #5a6268;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Aligner en haut pour les pages longues */
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* --- Conteneur Principal --- */
+.container {
+    background-color: var(--container-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px M20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px; /* Largeur augmentée pour le simulateur */
+    text-align: center;
+}
+
+header h1 {
+    color: var(--dark-blue-btn);
+    margin-bottom: 10px;
+}
+
+header p {
+    color: #555;
+    margin-bottom: 30px;
+}
+
+/* --- Grilles de Palettes --- */
+.palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 15px;
+    transition: opacity 0.3s ease;
+    margin-bottom: 30px;
+}
+
+.color-swatch {
+    height: 80px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid #ccc; /* Bordure grise visible pour que le blanc apparaisse */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* --- Affichage du Résultat --- */
+#result-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+#color-preview {
+    width: 100%;
+    max-width: 350px;
+    height: 100px;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+}
+
+.result-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f9f9f9;
+    padding: 10px 15px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.result-info span {
+    font-size: 1.1rem;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+/* --- Boutons --- */
+button {
+    background-color: var(--dark-blue-btn);
+    color: var(--white-text);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button:hover {
+    background-color: #0000CD; /* MediumBlue, un peu plus clair */
+}
+
+button.btn-secondary {
+    background-color: var(--secondary-btn-bg);
+}
+button.btn-secondary:hover {
+    background-color: var(--secondary-btn-hover-bg);
+}
+
+
+#new-search-btn {
+    margin-top: 15px;
+    width: 100%;
+    max-width: 350px;
+}
+
+/* --- Section Simulateur --- */
+#simulator-section {
+    margin-top: 40px;
+    border-top: 2px solid #eee;
+    padding-top: 30px;
+}
+
+#simulator-preview {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    text-align: left;
+    margin-bottom: 30px;
+    font-family: 'Georgia', serif;
+}
+
+#sim-title {
+    border: 2px solid #333;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.sim-text-container {
+    margin-bottom: 20px;
+}
+
+.sim-text-container p {
+    margin-bottom: 10px;
+}
+
+.sim-button-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.sim-button-container button {
+    flex-grow: 1;
+}
+
+#sim-banner-top, #sim-banner-bottom {
+    padding: 15px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+}
+#sim-banner-top { margin-bottom: 20px; }
+
+
+/* --- Contrôles du Simulateur --- */
+#simulator-controls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    gap: 5px;
+}
+
+.control-group label {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.control-group input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1rem;
+}
+
+/* --- Actions (Import/Export) --- */
+.data-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* --- Classe Utilitaire --- */
+.hidden {
+    display: none;
+}</style></head><body><!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sélecteur & Simulateur de Couleur</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Sélecteur de Couleur</h1>
+            <p>Cliquez sur une couleur pour découvrir ses nuances et copiez son code ci-dessous.</p>
+        </header>
+
+        <main>
+            <!-- Palette principale (générée par JavaScript) -->
+            <div id="main-palette" class="palette-grid"></div>
+
+            <!-- Palette secondaire (générée par JavaScript et cachée par défaut) -->
+            <div id="secondary-palette" class="palette-grid hidden"></div>
+
+            <!-- Affichage du résultat (caché par défaut) -->
+            <div id="result-display" class="hidden">
+                <h2>Couleur Sélectionnée</h2>
+                <div id="color-preview"></div>
+                
+                <div class="result-info">
+                    <span id="color-name-display"></span>
+                    <button id="copy-name-btn" title="Copier le nom">Copier</button>
+                </div>
+                
+                <div class="result-info">
+                    <span id="color-code-display"></span>
+                    <button id="copy-code-btn" title="Copier le code couleur">Copier</button>
+                </div>
+                
+                <button id="new-search-btn">Nouvelle Recherche</button>
+            </div>
+        </main>
+
+        <!-- Section du Simulateur -->
+        <section id="simulator-section">
+            <header>
+                <h1>Simulateur de Page Web</h1>
+                <p>Collez les codes couleur dans les champs ci-dessous pour personnaliser l'aperçu.</p>
+            </header>
+
+            <!-- Aperçu Visuel du Simulateur -->
+            <div id="simulator-preview">
+                <div id="sim-banner-top">Texte du bandeau supérieur</div>
+                <h2 id="sim-title">Titre Principal Encadré</h2>
+                <div class="sim-text-container">
+                    <p id="sim-text-1">Ceci est un paragraphe de texte pour tester la couleur de la police.</p>
+                    <p id="sim-text-2">Un autre paragraphe pour voir si le contraste est bon.</p>
+                    <p id="sim-text-3">Le design est la voix silencieuse d'une marque.</p>
+                    <p id="sim-text-4">Le choix des couleurs est une étape cruciale.</p>
+                </div>
+                <div class="sim-button-container">
+                    <button id="sim-btn-1">Bouton 1</button>
+                    <button id="sim-btn-2">Bouton 2</button>
+                    <button id="sim-btn-3">Bouton 3</button>
+                    <button id="sim-btn-4">Bouton 4</button>
+                </div>
+                <div id="sim-banner-bottom">Texte du bandeau inférieur</div>
+            </div>
+
+            <!-- Panneau de Contrôle des Couleurs -->
+            <div id="simulator-controls">
+                <!-- Les contrôles sont générés par JavaScript -->
+            </div>
+
+            <!-- Actions sur les données -->
+            <div class="data-actions">
+                <button id="import-json-btn">Importer Thème (JSON)</button>
+                <button id="export-json-btn">Exporter Thème (JSON)</button>
+                <button id="export-html-btn">Télécharger la Page (HTML)</button>
+                <button id="reset-simulator-btn" class="btn-secondary">Réinitialiser</button>
+            </div>
+            <input type="file" id="json-file-input" class="hidden" accept=".json">
+
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html><script>document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Base de données des couleurs (PARTIE 1) ---
+    const colors = {
+        'Rouge':    { normal: '#DC143C', light: '#F08080', dark: '#8B0000' },
+        'Orange':   { normal: '#FFA500', light: '#FFDAB9', dark: '#FF8C00' },
+        'Jaune':    { normal: '#FFD700', light: '#FFFACD', dark: '#B8860B' },
+        'Vert':     { normal: '#2E8B57', light: '#98FB98', dark: '#006400' },
+        'Cyan':     { normal: '#00CED1', light: '#E0FFFF', dark: '#008B8B' },
+        'Bleu':     { normal: '#1E90FF', light: '#ADD8E6', dark: '#00008B' },
+        'Violet':   { normal: '#8A2BE2', light: '#E6E6FA', dark: '#4B0082' },
+        'Magenta':  { normal: '#C71585', light: '#FFB6C1', dark: '#8B008B' },
+        'Gris':     { normal: '#808080', light: '#D3D3D3', dark: '#2F4F4F' },
+        'Blanc':    '#FFFFFF',
+        'Noir':     '#000000'
+    };
+
+    // --- Références aux éléments du DOM (PARTIE 1) ---
+    const mainPalette = document.getElementById('main-palette');
+    const secondaryPalette = document.getElementById('secondary-palette');
+    const resultDisplay = document.getElementById('result-display');
+    const colorPreview = document.getElementById('color-preview');
+    const colorNameDisplay = document.getElementById('color-name-display');
+    const colorCodeDisplay = document.getElementById('color-code-display');
+    const copyNameBtn = document.getElementById('copy-name-btn');
+    const copyCodeBtn = document.getElementById('copy-code-btn');
+    const newSearchBtn = document.getElementById('new-search-btn');
+
+    // --- Fonctions de la palette (PARTIE 1) ---
+    function displayMainPalette() {
+        mainPalette.innerHTML = ''; 
+        Object.keys(colors).forEach(colorName => {
+            const colorData = colors[colorName];
+            let swatch;
+            
+            if (typeof colorData === 'object' && colorData !== null) {
+                swatch = createColorSwatch(colorData.normal);
+                swatch.addEventListener('click', () => {
+                    displaySecondaryPalette(colorName);
+                });
+            } else {
+                const hexCode = colorData;
+                swatch = createColorSwatch(hexCode);
+                swatch.addEventListener('click', () => {
+                    hidePalettes();
+                    displayResult(colorName, hexCode);
+                });
+            }
+            
+            mainPalette.appendChild(swatch);
+        });
+    }
+
+    function displaySecondaryPalette(colorName) {
+        hidePalettes();
+        secondaryPalette.innerHTML = '';
+        
+        const shades = colors[colorName];
+        
+        Object.entries(shades).forEach(([shadeType, hexCode]) => {
+            const shadeNameMap = { 'light': 'Clair', 'normal': '', 'dark': 'Foncé' };
+            const fullColorName = `${colorName} ${shadeNameMap[shadeType]}`.trim();
+
+            const swatch = createColorSwatch(hexCode);
+            swatch.addEventListener('click', () => {
+                displayResult(fullColorName, hexCode);
+            });
+            
+            secondaryPalette.appendChild(swatch);
+        });
+
+        secondaryPalette.classList.remove('hidden');
+    }
+
+    function displayResult(name, code) {
+        secondaryPalette.classList.add('hidden');
+        
+        colorPreview.style.backgroundColor = code;
+        colorNameDisplay.textContent = name;
+        colorCodeDisplay.textContent = code;
+
+        copyNameBtn.textContent = 'Copier';
+        copyCodeBtn.textContent = 'Copier';
+
+        resultDisplay.classList.remove('hidden');
+    }
+
+    function resetApp() {
+        resultDisplay.classList.add('hidden');
+        secondaryPalette.classList.add('hidden');
+        mainPalette.classList.remove('hidden');
+    }
+
+    function hidePalettes() {
+        mainPalette.classList.add('hidden');
+        secondaryPalette.classList.add('hidden');
+    }
+
+    function createColorSwatch(hexCode) {
+        const swatch = document.createElement('div');
+        swatch.className = 'color-swatch';
+        swatch.style.backgroundColor = hexCode;
+        return swatch;
+    }
+
+    function copyToClipboard(textToCopy, button) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalText = button.textContent;
+            button.textContent = 'Copié !';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1500);
+        }).catch(err => {
+            console.error('Erreur lors de la copie : ', err);
+            alert('La copie a échoué.');
+        });
+    }
+
+    // --- Écouteurs d'événements (PARTIE 1) ---
+    copyNameBtn.addEventListener('click', () => copyToClipboard(colorNameDisplay.textContent, copyNameBtn));
+    copyCodeBtn.addEventListener('click', () => copyToClipboard(colorCodeDisplay.textContent, copyCodeBtn));
+    newSearchBtn.addEventListener('click', resetApp);
+
+    // --- Initialisation (PARTIE 1) ---
+    displayMainPalette();
+
+    // ===================================================================
+    // --- NOUVELLE LOGIQUE POUR LE SIMULATEUR (PARTIE 2) ---
+    // ===================================================================
+
+    // --- Références aux éléments du DOM (PARTIE 2) ---
+    const simulatorControls = document.getElementById('simulator-controls');
+    const importJsonBtn = document.getElementById('import-json-btn');
+    const exportJsonBtn = document.getElementById('export-json-btn');
+    const exportHtmlBtn = document.getElementById('export-html-btn');
+    const resetSimulatorBtn = document.getElementById('reset-simulator-btn');
+    const jsonFileInput = document.getElementById('json-file-input');
+
+    // Configuration des éléments du simulateur
+    const simulatorElements = [
+        { id: 'sim-banner-top', label: 'Bandeau Sup. (Fond)', property: 'backgroundColor', default: '#333333' },
+        { id: 'sim-banner-top', label: 'Bandeau Sup. (Texte)', property: 'color', default: '#FFFFFF' },
+        { id: 'sim-title', label: 'Titre (Fond)', property: 'backgroundColor', default: '#f9f9f9' },
+        { id: 'sim-title', label: 'Titre (Texte)', property: 'color', default: '#000000' },
+        { id: 'sim-title', label: 'Titre (Bordure)', property: 'borderColor', default: '#333333' },
+        { id: 'simulator-preview', label: 'Fond Page', property: 'backgroundColor', default: '#FFFFFF' },
+        { id: 'sim-text-1', label: 'Texte des Paragraphes', property: 'color', targets: ['.sim-text-container p'], default: '#1c2331' },
+        { id: 'sim-btn-1', label: 'Boutons (Fond)', property: 'backgroundColor', targets: ['.sim-button-container button'], default: '#00008B' },
+        { id: 'sim-btn-1', label: 'Boutons (Texte)', property: 'color', targets: ['.sim-button-container button'], default: '#FFFFFF' },
+        { id: 'sim-banner-bottom', label: 'Bandeau Inf. (Fond)', property: 'backgroundColor', default: '#333333' },
+        { id: 'sim-banner-bottom', label: 'Bandeau Inf. (Texte)', property: 'color', default: '#FFFFFF' },
+    ];
+
+    // --- Fonctions du Simulateur (PARTIE 2) ---
+
+    function initializeSimulatorControls() {
+        simulatorControls.innerHTML = '';
+        simulatorElements.forEach(elem => {
+            const controlId = `${elem.id}-${elem.property}`; // ID unique pour chaque contrôle
+
+            const group = document.createElement('div');
+            group.className = 'control-group';
+
+            const label = document.createElement('label');
+            label.setAttribute('for', controlId);
+            label.textContent = elem.label;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = controlId;
+            input.placeholder = 'ex: #1c2331';
+            input.value = elem.default; // Appliquer la couleur par défaut
+            
+            // Lier l'input à sa configuration pour un accès facile
+            input.dataset.config = JSON.stringify({
+                property: elem.property,
+                targets: elem.targets || [`#${elem.id}`]
+            });
+            
+            group.appendChild(label);
+            group.appendChild(input);
+            simulatorControls.appendChild(group);
+
+            applyColorFromInput(input); // Appliquer la couleur initiale
+        });
+
+        // Ajouter les écouteurs d'événements après la création
+        simulatorControls.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => applyColorFromInput(input));
+        });
+    }
+
+    function applyColorFromInput(input) {
+        const config = JSON.parse(input.dataset.config);
+        const colorValue = input.value.trim();
+
+        config.targets.forEach(selector => {
+            document.querySelectorAll(selector).forEach(element => {
+                element.style[config.property] = colorValue;
+            });
+        });
+    }
+
+    function resetSimulator() {
+        simulatorControls.querySelectorAll('input').forEach(input => {
+            const config = JSON.parse(input.dataset.config);
+            const originalElementConfig = simulatorElements.find(el => `${el.id}-${el.property}` === input.id);
+            if(originalElementConfig) {
+                input.value = originalElementConfig.default;
+                applyColorFromInput(input);
+            }
+        });
+    }
+
+    function exportThemeAsJson() {
+        const theme = {};
+        simulatorControls.querySelectorAll('input').forEach(input => {
+            theme[input.id] = input.value;
+        });
+
+        const jsonString = JSON.stringify(theme, null, 2);
+        downloadFile(jsonString, 'mon-theme.json', 'application/json');
+    }
+
+    function importThemeFromJson(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const theme = JSON.parse(e.target.result);
+                Object.keys(theme).forEach(inputId => {
+                    const input = document.getElementById(inputId);
+                    if (input) {
+                        input.value = theme[inputId];
+                        applyColorFromInput(input);
+                    }
+                });
+            } catch (error) {
+                console.error("Erreur lors de la lecture du fichier JSON :", error);
+                alert("Fichier JSON invalide.");
+            }
+        };
+        reader.readAsText(file);
+        event.target.value = null; // Permet de recharger le même fichier
+    }
+
+    function exportPageAsHtml() {
+        const previewContent = document.getElementById('simulator-preview').innerHTML;
+        const styles = Array.from(document.styleSheets)
+            .map(sheet => {
+                try {
+                    return Array.from(sheet.cssRules)
+                        .map(rule => rule.cssText)
+                        .join('');
+                } catch (e) {
+                    console.warn("Impossible de lire les règles CSS (CORS) :", e);
+                    return '';
+                }
+            })
+            .join('');
+
+        // Isoler les styles appliqués en ligne pour les injecter
+        const inlineStyles = {};
+        simulatorElements.forEach(elem => {
+             (elem.targets || [`#${elem.id}`]).forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    const id = el.id || selector;
+                    if (!inlineStyles[id]) inlineStyles[id] = {};
+                    inlineStyles[id][elem.property] = el.style[elem.property];
+                });
+            });
+        });
+        
+        let finalPreviewHtml = document.getElementById('simulator-preview').cloneNode(true);
+        // Appliquer les styles en dur sur le clone
+        Object.keys(inlineStyles).forEach(idOrSelector => {
+            finalPreviewHtml.querySelectorAll(idOrSelector).forEach(el => {
+                Object.assign(el.style, inlineStyles[idOrSelector]);
+            });
+        });
+
+        const htmlTemplate = `
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export de votre Design</title>
+    <style>
+        /* Styles de base pour la mise en page */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f0f8ff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        #simulator-preview { border: 2px solid #ddd; border-radius: 8px; padding: 20px; width: 100%; max-width: 760px; text-align: left; font-family: 'Georgia', serif; }
+        #sim-title { border: 2px solid; padding: 15px; text-align: center; margin-bottom: 20px; }
+        .sim-text-container { margin-bottom: 20px; }
+        .sim-text-container p { margin-bottom: 10px; }
+        .sim-button-container { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .sim-button-container button { flex-grow: 1; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; font-weight: bold; }
+        #sim-banner-top, #sim-banner-bottom { padding: 15px; text-align: center; border-radius: 4px; }
+        #sim-banner-top { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    ${finalPreviewHtml.outerHTML}
+</body>
+</html>`;
+        downloadFile(htmlTemplate, 'ma-page.html', 'text/html');
+    }
+
+    function downloadFile(content, fileName, contentType) {
+        const a = document.createElement("a");
+        const file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    }
+    
+    // --- Écouteurs d'événements (PARTIE 2) ---
+    exportJsonBtn.addEventListener('click', exportThemeAsJson);
+    importJsonBtn.addEventListener('click', () => jsonFileInput.click());
+    jsonFileInput.addEventListener('change', importThemeFromJson);
+    exportHtmlBtn.addEventListener('click', exportPageAsHtml);
+    resetSimulatorBtn.addEventListener('click', resetSimulator);
+
+    // --- Initialisation du Simulateur (PARTIE 2) ---
+    initializeSimulatorControls();
+});</script></body></html>
